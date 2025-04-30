@@ -1,11 +1,38 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Trophy, Users, Coins } from "lucide-react";
+import { Trophy, Users, Coins, Plus, Edit, Trash } from "lucide-react";
 import Navbar from "@/components/navigation/Navbar";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const AdminPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [adminName, setAdminName] = useState("Admin");
+  
+  // Check if user is admin
+  useEffect(() => {
+    const userRole = localStorage.getItem("userRole");
+    const userName = localStorage.getItem("userName");
+    
+    if (userRole !== "admin") {
+      toast({
+        title: "Access denied",
+        description: "You need admin privileges to access this page",
+        variant: "destructive",
+      });
+      navigate("/");
+      return;
+    }
+    
+    if (userName) {
+      setAdminName(userName);
+    }
+  }, [navigate, toast]);
+
   // Mock data for admin dashboard
   const stats = {
     activeTournaments: 12,
@@ -25,6 +52,37 @@ const AdminPage: React.FC = () => {
     ]
   };
 
+  const handleAddTournament = () => {
+    toast({
+      title: "Feature coming soon",
+      description: "Tournament creation will be available in the next update",
+    });
+  };
+
+  const handleEditTournament = (id: string) => {
+    toast({
+      title: "Edit tournament",
+      description: `Editing tournament ${id}`,
+    });
+  };
+
+  const handleDeleteTournament = (id: string) => {
+    toast({
+      title: "Delete tournament",
+      description: `Tournament ${id} has been deleted`,
+    });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully",
+    });
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
@@ -32,7 +90,12 @@ const AdminPage: React.FC = () => {
       <main className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <p className="text-purple-500">Welcome, Chandan</p>
+          <div className="flex items-center gap-4">
+            <p className="text-purple-500">Welcome, {adminName}</p>
+            <Button variant="outline" onClick={handleLogout} className="border-red-500 text-red-500 hover:bg-red-500/10">
+              Logout
+            </Button>
+          </div>
         </div>
         
         {/* Stats Overview */}
@@ -76,8 +139,11 @@ const AdminPage: React.FC = () => {
         
         {/* Tournaments Table */}
         <Card className="bg-zinc-900 border-zinc-800 mb-8">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-xl">Recent Tournaments</CardTitle>
+            <Button onClick={handleAddTournament} className="bg-purple-600 hover:bg-purple-500">
+              <Plus size={16} className="mr-2" /> Add Tournament
+            </Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -87,6 +153,7 @@ const AdminPage: React.FC = () => {
                   <TableHead>Teams</TableHead>
                   <TableHead>Prize Pool</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -104,6 +171,26 @@ const AdminPage: React.FC = () => {
                       }`}>
                         {tournament.status}
                       </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => handleEditTournament(tournament.id)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-red-500 hover:text-red-400 hover:bg-red-900/20" 
+                          onClick={() => handleDeleteTournament(tournament.id)}
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

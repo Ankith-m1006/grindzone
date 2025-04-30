@@ -11,35 +11,61 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     // Check if admin credentials
     if (email === "Chandan" && password === "buddy@game") {
-      toast({
-        title: "Admin login successful",
-        description: "Welcome back, Admin!",
-        duration: 3000,
-      });
-      
-      // Navigate to admin page
-      navigate("/admin");
+      // Simulate network delay
+      setTimeout(() => {
+        // Store admin status in localStorage for persistence
+        localStorage.setItem("userRole", "admin");
+        localStorage.setItem("userName", "Chandan");
+        
+        toast({
+          title: "Admin login successful",
+          description: "Welcome back, Admin!",
+          duration: 3000,
+        });
+        
+        setIsLoading(false);
+        // Navigate to admin page
+        navigate("/admin");
+      }, 800);
       return;
     }
     
     // Regular user login
     if (email && password) {
+      // Simulate network delay
+      setTimeout(() => {
+        // Store user data in localStorage for persistence
+        localStorage.setItem("userRole", "user");
+        localStorage.setItem("userName", email);
+        
+        toast({
+          title: "Login successful",
+          description: "Welcome back to GrindZone!",
+          duration: 3000,
+        });
+        
+        setIsLoading(false);
+        // Navigate to tournaments page after successful login
+        navigate("/tournaments");
+      }, 800);
+    } else {
+      setIsLoading(false);
       toast({
-        title: "Login successful",
-        description: "Welcome back to GrindZone!",
+        title: "Login failed",
+        description: "Please enter both username and password",
+        variant: "destructive",
         duration: 3000,
       });
-      
-      // Navigate to tournaments page after successful login
-      navigate("/tournaments");
     }
   };
 
@@ -89,8 +115,12 @@ const LoginForm: React.FC = () => {
           <Label htmlFor="remember" className="text-sm">Remember me</Label>
         </div>
         
-        <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-500">
-          Login
+        <Button 
+          type="submit" 
+          className="w-full bg-purple-600 hover:bg-purple-500"
+          disabled={isLoading}
+        >
+          {isLoading ? "Logging in..." : "Login"}
         </Button>
         
         <div className="text-center mt-6">
