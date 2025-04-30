@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   };
   
   return (
-    <header className="bg-grindzone-darker border-b border-border sticky top-0 z-10">
+    <header className="bg-black border-b border-zinc-800 sticky top-0 z-10">
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
         <div className="flex items-center">
           <Link to="/" className="mr-8">

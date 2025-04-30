@@ -68,15 +68,15 @@ export default {
 				},
 				// GrindZone custom colors
 				grindzone: {
-					dark: '#141929',
-					darker: '#0B0E17',
+					dark: '#0a0a0c',
+					darker: '#050506',
 					blue: {
-						DEFAULT: '#1EAEDB',
-						light: '#40C4F4',
-						dark: '#0E8CB5'
+						DEFAULT: '#7c3aed',
+						light: '#9d5cf5',
+						dark: '#6d28d9'
 					},
-					card: '#1C2237',
-					accent: '#0FA0CE'
+					card: '#121212',
+					accent: '#7c3aed'
 				}
 			},
 			borderRadius: {
@@ -85,8 +85,8 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			boxShadow: {
-				'glow-blue': '0 0 15px rgba(30, 174, 219, 0.5)',
-				'glow-sm': '0 0 5px rgba(30, 174, 219, 0.3)', 
+				'glow-purple': '0 0 15px rgba(124, 58, 237, 0.5)',
+				'glow-sm': '0 0 5px rgba(124, 58, 237, 0.3)', 
 			},
 			keyframes: {
 				'accordion-down': {
@@ -107,10 +107,10 @@ export default {
 				},
 				'pulse-glow': {
 					'0%, 100%': { 
-						boxShadow: '0 0 15px rgba(30, 174, 219, 0.2)' 
+						boxShadow: '0 0 15px rgba(124, 58, 237, 0.2)' 
 					},
 					'50%': { 
-						boxShadow: '0 0 20px rgba(30, 174, 219, 0.6)' 
+						boxShadow: '0 0 20px rgba(124, 58, 237, 0.6)' 
 					},
 				}
 			},
