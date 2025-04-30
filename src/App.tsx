@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import TournamentsPage from "./pages/TournamentsPage";
+import TournamentDetailsPage from "./pages/TournamentDetailsPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import SquadPage from "./pages/SquadPage";
+import CreateSquadPage from "./pages/CreateSquadPage";
 import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
@@ -23,8 +25,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/tournaments" element={<TournamentsPage />} />
+          <Route path="/tournaments/:id" element={<TournamentDetailsPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/squad" element={<SquadPage />} />
+          <Route path="/create-squad" element={<CreateSquadPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />

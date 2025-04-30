@@ -1,229 +1,196 @@
 
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/navigation/Navbar";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { PlusIcon } from "lucide-react";
+
+// Mock data for squads
+const mockSquads = [
+  {
+    id: "1",
+    name: "Team Phoenix",
+    tag: "PHX",
+    tier: "Professional",
+    logo: "/placeholder.svg",
+    members: 5,
+    wins: 24,
+    losses: 6
+  },
+  {
+    id: "2",
+    name: "Shadow Wolves",
+    tag: "SW",
+    tier: "Semi-Pro",
+    logo: "/placeholder.svg",
+    members: 4,
+    wins: 15,
+    losses: 8
+  }
+];
 
 const SquadPage: React.FC = () => {
-  // Mock squad data
-  const mySquads = [
-    {
-      id: "1",
-      name: "Phantom Esports",
-      logo: "/placeholder.svg",
-      tier: "Professional",
-      members: 5,
-      wins: 48,
-      losses: 12,
-      roster: [
-        { name: "PhantomSniper", role: "Captain", joinDate: "Jan 15, 2023" },
-        { name: "ShadowBlade", role: "Fragger", joinDate: "Jan 20, 2023" },
-        { name: "NightHawk", role: "Support", joinDate: "Feb 5, 2023" },
-        { name: "VenomStrike", role: "Sniper", joinDate: "Mar 12, 2023" },
-        { name: "StormRider", role: "Scout", joinDate: "Apr 8, 2023" }
-      ]
-    }
-  ];
-  
-  const recommendedSquads = [
-    {
-      id: "2",
-      name: "Elite Warriors",
-      logo: "/placeholder.svg",
-      tier: "Semi-Pro",
-      members: 4,
-      openSlots: 1
-    },
-    {
-      id: "3",
-      name: "Nova Esports",
-      logo: "/placeholder.svg",
-      tier: "Professional",
-      members: 5,
-      openSlots: 0
-    },
-    {
-      id: "4",
-      name: "Apex Predators",
-      logo: "/placeholder.svg",
-      tier: "Amateur",
-      members: 3,
-      openSlots: 2
-    }
-  ];
-  
-  const [selectedSquad, setSelectedSquad] = React.useState(mySquads[0]);
-  
+  const navigate = useNavigate();
+  const [activeSquad, setActiveSquad] = useState(mockSquads[0]);
+
+  const handleCreateSquad = () => {
+    navigate("/create-squad");
+  };
+
   return (
     <div className="min-h-screen bg-grindzone-dark">
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <PageTitle 
-          title="Squad"
-          subtitle="Manage your teams and find new teammates"
-        />
+        <div className="flex flex-wrap items-center justify-between mb-8">
+          <PageTitle 
+            title="My Squads"
+            subtitle="Manage your teams and teammates"
+          />
+          
+          <Button 
+            onClick={handleCreateSquad}
+            className="bg-grindzone-blue hover:bg-grindzone-blue-light flex items-center gap-2"
+          >
+            <PlusIcon size={16} />
+            Create New Squad
+          </Button>
+        </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium mb-4">My Squads</h3>
-              {mySquads.map((squad) => (
-                <Card 
-                  key={squad.id} 
-                  className={`mb-4 cursor-pointer hover:border-grindzone-blue transition-colors ${
-                    selectedSquad?.id === squad.id ? 'border-grindzone-blue shadow-glow-sm' : 'bg-grindzone-card'
-                  }`}
-                  onClick={() => setSelectedSquad(squad)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center">
-                      <div className="h-12 w-12 bg-grindzone-darker rounded-full flex items-center justify-center mr-4">
-                        {squad.logo ? (
-                          <img 
-                            src={squad.logo} 
-                            alt={squad.name} 
-                            className="h-8 w-8"
-                          />
-                        ) : (
-                          <span className="text-xl font-bold">{squad.name.charAt(0)}</span>
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">{squad.name}</h4>
-                        <p className="text-sm text-muted-foreground">{squad.tier} • {squad.members} members</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              <Button className="w-full mt-4 bg-grindzone-blue hover:bg-grindzone-blue-light">
-                Create New Squad
-              </Button>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Squad List */}
+          <div className="lg:col-span-1 space-y-4">
+            <h2 className="text-lg font-semibold mb-2">Your Squads</h2>
             
-            <div>
-              <h3 className="text-lg font-medium mb-4">Recommended Squads</h3>
-              {recommendedSquads.map((squad) => (
-                <Card key={squad.id} className="mb-4 bg-grindzone-card">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="h-12 w-12 bg-grindzone-darker rounded-full flex items-center justify-center mr-4">
-                          {squad.logo ? (
-                            <img 
-                              src={squad.logo} 
-                              alt={squad.name} 
-                              className="h-8 w-8"
-                            />
-                          ) : (
-                            <span className="text-xl font-bold">{squad.name.charAt(0)}</span>
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="font-semibold">{squad.name}</h4>
-                          <p className="text-sm text-muted-foreground">{squad.tier} • {squad.members} members</p>
-                        </div>
-                      </div>
-                      {squad.openSlots > 0 ? (
-                        <Button size="sm" className="bg-grindzone-blue hover:bg-grindzone-blue-light">
-                          Join
-                        </Button>
-                      ) : (
-                        <Button size="sm" disabled>
-                          Full
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {mockSquads.map((squad) => (
+              <Card 
+                key={squad.id} 
+                className={`cursor-pointer transition-colors ${
+                  activeSquad.id === squad.id 
+                    ? "bg-grindzone-blue/20 border-grindzone-blue" 
+                    : "bg-grindzone-card hover:bg-grindzone-blue/10"
+                }`}
+                onClick={() => setActiveSquad(squad)}
+              >
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-grindzone-darker flex items-center justify-center overflow-hidden">
+                    {squad.logo ? (
+                      <img src={squad.logo} alt={squad.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="font-bold text-sm">{squad.tag}</span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{squad.name}</h3>
+                    <p className="text-xs text-muted-foreground">{squad.tier}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
           
-          <div className="lg:col-span-2">
-            {selectedSquad && (
-              <>
-                <Card className="bg-grindzone-card mb-6">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="h-16 w-16 bg-grindzone-darker rounded-full flex items-center justify-center mr-4">
-                          {selectedSquad.logo ? (
-                            <img 
-                              src={selectedSquad.logo} 
-                              alt={selectedSquad.name} 
-                              className="h-12 w-12"
-                            />
-                          ) : (
-                            <span className="text-2xl font-bold">{selectedSquad.name.charAt(0)}</span>
-                          )}
-                        </div>
-                        <div>
-                          <CardTitle>{selectedSquad.name}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{selectedSquad.tier} Tier</p>
-                        </div>
-                      </div>
-                      <Button variant="outline">Edit Squad</Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-4 mt-4">
-                      <div className="bg-grindzone-darker p-4 rounded-lg text-center">
-                        <p className="text-sm text-muted-foreground">Wins</p>
-                        <p className="text-2xl font-bold text-grindzone-blue">{selectedSquad.wins}</p>
-                      </div>
-                      <div className="bg-grindzone-darker p-4 rounded-lg text-center">
-                        <p className="text-sm text-muted-foreground">Losses</p>
-                        <p className="text-2xl font-bold">{selectedSquad.losses}</p>
-                      </div>
-                      <div className="bg-grindzone-darker p-4 rounded-lg text-center">
-                        <p className="text-sm text-muted-foreground">Win Rate</p>
-                        <p className="text-2xl font-bold text-grindzone-blue">
-                          {((selectedSquad.wins / (selectedSquad.wins + selectedSquad.losses)) * 100).toFixed(1)}%
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* Squad Details */}
+          <div className="lg:col-span-3">
+            <Card className="bg-grindzone-card border-border">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-grindzone-darker flex items-center justify-center overflow-hidden">
+                    {activeSquad.logo ? (
+                      <img src={activeSquad.logo} alt={activeSquad.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="font-bold">{activeSquad.tag}</span>
+                    )}
+                  </div>
+                  <div>
+                    <CardTitle>{activeSquad.name} [{activeSquad.tag}]</CardTitle>
+                    <p className="text-sm text-muted-foreground">{activeSquad.tier} • {activeSquad.members} members</p>
+                  </div>
+                </div>
+                <Button variant="outline">Manage Squad</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                  <div className="bg-grindzone-darker p-4 rounded-md text-center">
+                    <h4 className="text-sm text-muted-foreground">Wins</h4>
+                    <p className="text-2xl font-semibold text-green-500">{activeSquad.wins}</p>
+                  </div>
+                  <div className="bg-grindzone-darker p-4 rounded-md text-center">
+                    <h4 className="text-sm text-muted-foreground">Losses</h4>
+                    <p className="text-2xl font-semibold text-red-500">{activeSquad.losses}</p>
+                  </div>
+                  <div className="bg-grindzone-darker p-4 rounded-md text-center">
+                    <h4 className="text-sm text-muted-foreground">Win Rate</h4>
+                    <p className="text-2xl font-semibold text-purple-500">
+                      {((activeSquad.wins / (activeSquad.wins + activeSquad.losses)) * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
                 
-                <Card className="bg-grindzone-card">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Squad Roster</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader className="bg-grindzone-darker">
-                        <TableRow>
-                          <TableHead>Player Name</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead>Join Date</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {selectedSquad.roster.map((player, index) => (
-                          <TableRow key={index} className="hover:bg-grindzone-blue/5">
-                            <TableCell className="font-medium">{player.name}</TableCell>
-                            <TableCell>{player.role}</TableCell>
-                            <TableCell>{player.joinDate}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </>
-            )}
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-4">Squad Members</h3>
+                  <div className="bg-grindzone-darker rounded-md overflow-hidden">
+                    <table className="w-full text-left">
+                      <thead className="bg-grindzone-card/50">
+                        <tr>
+                          <th className="px-4 py-3 text-sm font-medium">Player</th>
+                          <th className="px-4 py-3 text-sm font-medium">Role</th>
+                          <th className="px-4 py-3 text-sm font-medium">Joined</th>
+                          <th className="px-4 py-3 text-sm font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-full bg-grindzone-blue/20 mr-3"></div>
+                              <span>ProGamer123</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">Captain</td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">Jan 15, 2025</td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">
+                            <span className="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-500">Online</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-full bg-grindzone-blue/20 mr-3"></div>
+                              <span>NinjaWarrior</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">Member</td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">Feb 2, 2025</td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">
+                            <span className="px-2 py-1 text-xs rounded-full bg-gray-500/20 text-gray-400">Offline</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-full bg-grindzone-blue/20 mr-3"></div>
+                              <span>ShadowSniper</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">Member</td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">Feb 8, 2025</td>
+                          <td className="px-4 py-3 border-t border-grindzone-darker">
+                            <span className="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-500">In Game</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div className="flex justify-center">
+                  <Button variant="outline" className="mr-4">Invite Players</Button>
+                  <Button className="bg-grindzone-blue hover:bg-grindzone-blue-light">View Matches</Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

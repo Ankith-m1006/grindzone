@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { CalendarIcon } from "lucide-react";
 
@@ -24,6 +25,12 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   image,
   isFull = false
 }) => {
+  const navigate = useNavigate();
+  
+  const handleTournamentClick = () => {
+    navigate(`/tournaments/${id}`);
+  };
+  
   return (
     <div className="bg-grindzone-card rounded-xl overflow-hidden card-glow border border-border">
       <div className="bg-indigo-500/30 h-32 flex items-center justify-center p-6">
@@ -63,7 +70,10 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
             Full
           </Button>
         ) : (
-          <Button className="w-full bg-grindzone-blue hover:bg-grindzone-blue-light">
+          <Button 
+            className="w-full bg-grindzone-blue hover:bg-grindzone-blue-light"
+            onClick={handleTournamentClick}
+          >
             Join Tournament
           </Button>
         )}
