@@ -1,101 +1,81 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 225 24% 12%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 226 22% 16%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 225 24% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 196 76% 49%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 228 24% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 228 16% 20%;
+    --muted-foreground: 215 20% 75%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 196 76% 42%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
+    --border: 228 16% 24%;
+    --input: 228 16% 24%;
+    --ring: 196 76% 49%;
 
-@layer base {
+    --radius: 0.5rem;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-grindzone-dark text-foreground;
+    background-image: radial-gradient(circle at 50% 0%, rgba(30, 174, 219, 0.05), transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+/* Custom utility classes */
+@layer components {
+  .glow-text {
+    @apply text-grindzone-blue drop-shadow-[0_0_3px_rgba(30,174,219,0.5)];
+  }
+  
+  .card-glow {
+    @apply shadow-[0_0_10px_rgba(30,174,219,0.1)] hover:shadow-[0_0_15px_rgba(30,174,219,0.3)] transition-shadow duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-grindzone-blue text-white px-6 py-2 rounded hover:bg-grindzone-blue-light transition-colors duration-200 font-medium shadow-glow-sm hover:shadow-glow-blue;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent text-grindzone-blue border border-grindzone-blue px-6 py-2 rounded hover:bg-grindzone-blue/10 transition-colors duration-200 font-medium;
+  }
+  
+  .nav-link {
+    @apply px-4 py-2 flex items-center gap-2 rounded-md transition-colors hover:bg-grindzone-blue/10;
+  }
+  
+  .nav-link-active {
+    @apply bg-grindzone-blue text-white shadow-glow-sm;
+  }
+
+  .form-input {
+    @apply bg-grindzone-darker border border-border rounded-md px-4 py-2 w-full focus:ring-1 focus:ring-grindzone-blue focus:border-grindzone-blue transition-colors;
   }
 }

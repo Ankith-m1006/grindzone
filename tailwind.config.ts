@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,12 +65,28 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// GrindZone custom colors
+				grindzone: {
+					dark: '#141929',
+					darker: '#0B0E17',
+					blue: {
+						DEFAULT: '#1EAEDB',
+						light: '#40C4F4',
+						dark: '#0E8CB5'
+					},
+					card: '#1C2237',
+					accent: '#0FA0CE'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'glow-blue': '0 0 15px rgba(30, 174, 219, 0.5)',
+				'glow-sm': '0 0 5px rgba(30, 174, 219, 0.3)', 
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +104,20 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 15px rgba(30, 174, 219, 0.2)' 
+					},
+					'50%': { 
+						boxShadow: '0 0 20px rgba(30, 174, 219, 0.6)' 
+					},
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
 			}
 		}
 	},
