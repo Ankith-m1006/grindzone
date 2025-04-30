@@ -17,7 +17,20 @@ const LoginForm: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulating successful login
+    // Check if admin credentials
+    if (email === "Chandan" && password === "buddy@game") {
+      toast({
+        title: "Admin login successful",
+        description: "Welcome back, Admin!",
+        duration: 3000,
+      });
+      
+      // Navigate to admin page
+      navigate("/admin");
+      return;
+    }
+    
+    // Regular user login
     if (email && password) {
       toast({
         title: "Login successful",
@@ -37,11 +50,11 @@ const LoginForm: React.FC = () => {
       
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Username/Email</Label>
           <Input
             id="email"
-            type="email"
-            placeholder="you@example.com"
+            type="text"
+            placeholder="Enter username or email"
             className="form-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
