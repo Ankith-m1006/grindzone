@@ -80,10 +80,10 @@ const AdminPage: React.FC = () => {
       } else {
         // Default tournaments if none exist
         tournaments = [
-          { id: "t1", name: "FreeFire Champions Cup", game: "Free Fire", teams: 32, prize: "$5,000", status: "Ongoing", participants: "32/32 teams" },
-          { id: "t2", name: "PUBG Mobile Invitational", game: "PUBG", teams: 48, prize: "$8,000", status: "Upcoming", participants: "48/48 teams" },
-          { id: "t3", name: "Valorant Pro League", game: "Valorant", teams: 16, prize: "$3,000", status: "Completed", participants: "16/16 teams" },
-          { id: "t4", name: "COD Mobile Showdown", game: "COD", teams: 24, prize: "$4,500", status: "Registration", participants: "24/24 teams" },
+          { id: "t1", name: "FreeFire Champions Cup", game: "Free Fire", date: "2025-05-10", tier: "Professional", participants: "32/32 teams", prizePool: "$5,000", status: "Ongoing" },
+          { id: "t2", name: "PUBG Mobile Invitational", game: "PUBG", date: "2025-05-20", tier: "Professional", participants: "48/48 teams", prizePool: "$8,000", status: "Upcoming" },
+          { id: "t3", name: "Valorant Pro League", game: "Valorant", date: "2025-04-15", tier: "Semi-Pro", participants: "16/16 teams", prizePool: "$3,000", status: "Completed" },
+          { id: "t4", name: "COD Mobile Showdown", game: "COD", date: "2025-05-05", tier: "Amateur", participants: "24/24 teams", prizePool: "$4,500", status: "Registration" },
         ];
         localStorage.setItem("tournaments", JSON.stringify(tournaments));
       }
