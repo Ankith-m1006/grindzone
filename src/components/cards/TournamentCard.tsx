@@ -13,6 +13,7 @@ interface TournamentCardProps {
   participants: string;
   image?: string;
   isFull?: boolean;
+  status?: string;
 }
 
 const TournamentCard: React.FC<TournamentCardProps> = ({
@@ -23,7 +24,8 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   tier,
   participants,
   image,
-  isFull = false
+  isFull = false,
+  status
 }) => {
   const navigate = useNavigate();
   
@@ -31,8 +33,51 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     navigate(`/tournaments/${id}`);
   };
   
+  // Determine if tournament is full from participants string
+  const checkIfFull = (): boolean => {
+    if (isFull) return true;
+    
+    const match = participants.match(/(\d+)\/(\d+)/);
+    if (match && match.length >= 3) {
+      const current = parseInt(match[1]);
+      const max = parseInt(match[2]);
+      return current >= max;
+    }
+    return false;
+  };
+  
+  const tournamentIsFull = checkIfFull();
+  
+  // Format status badge
+  const renderStatusBadge = () => {
+    if (!status) return null;
+    
+    let badgeClass = "text-xs px-2 py-1 rounded absolute top-3 right-3 ";
+    
+    switch (status) {
+      case "Ongoing":
+        badgeClass += "bg-green-500/20 text-green-400";
+        break;
+      case "Upcoming":
+        badgeClass += "bg-blue-500/20 text-blue-400";
+        break;
+      case "Registration":
+        badgeClass += "bg-purple-500/20 text-purple-400";
+        break;
+      case "Completed":
+        badgeClass += "bg-zinc-500/20 text-zinc-400";
+        break;
+      default:
+        badgeClass += "bg-zinc-500/20 text-zinc-400";
+    }
+    
+    return <span className={badgeClass}>{status}</span>;
+  };
+  
   return (
-    <div className="bg-grindzone-card rounded-xl overflow-hidden card-glow border border-border">
+    <div className="bg-grindzone-card rounded-xl overflow-hidden card-glow border border-border relative">
+      {renderStatusBadge()}
+      
       <div className="bg-indigo-500/30 h-32 flex items-center justify-center p-6">
         <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
           {image ? (
@@ -65,7 +110,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           </span>
         </div>
         
-        {isFull ? (
+        {tournamentIsFull ? (
           <Button disabled className="w-full bg-gray-600 hover:bg-gray-600 cursor-not-allowed">
             Full
           </Button>

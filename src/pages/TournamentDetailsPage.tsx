@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/navigation/Navbar";
 import PageTitle from "@/components/ui/PageTitle";
@@ -7,112 +7,168 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CalendarIcon, TrophyIcon, UsersIcon, CreditCardIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
-// Mock tournament data - in a real app this would come from an API
-const tournamentData = {
-  "1": {
-    id: "1",
-    name: "Free Fire Pro League",
-    game: "Free Fire",
-    date: "May 15, 2025",
-    tier: "Professional",
-    participants: "45/64 teams",
-    image: "/lovable-uploads/f37ac391-6e24-4f2b-932b-c4e713603787.png",
-    prize: "$10,000",
-    registrationFee: "$50",
-    rules: [
-      "Teams must consist of 4 active players",
-      "All participants must be at least 16 years old",
-      "Double elimination format",
-      "No cheating or exploits allowed",
-      "Players must be available for all scheduled matches"
-    ],
-    description: "Join the most prestigious Free Fire tournament in the region. Test your skills against the best teams and compete for the grand prize and the title of Free Fire Pro Champion."
-  },
-  "2": {
-    id: "2",
-    name: "PUBG Mobile Open",
-    game: "PUBG Mobile",
-    date: "May 8, 2025",
-    tier: "Semi-Pro",
-    participants: "32/32 teams",
-    image: "/lovable-uploads/c5971abd-922a-41aa-aae8-8790974a7631.png",
-    prize: "$5,000",
-    registrationFee: "$30",
-    rules: [
-      "Teams must consist of 4 active players",
-      "All participants must be at least 16 years old",
-      "Round-robin group stage followed by single elimination",
-      "No cheating or exploits allowed",
-      "Players must be available for all scheduled matches"
-    ],
-    description: "The PUBG Mobile Open tournament brings together the best semi-professional teams for an action-packed competition. Show your tactical prowess and aim for the top prize!"
-  },
-  "3": {
-    id: "3",
-    name: "Valorant Rising Stars",
-    game: "Valorant",
-    date: "May 22, 2025",
-    tier: "Amateur",
-    participants: "28/32 teams",
-    prize: "$2,000",
-    registrationFee: "$20",
-    rules: [
-      "Teams must consist of 5 active players",
-      "All participants must be at least 14 years old",
-      "Single elimination format",
-      "No cheating or exploits allowed",
-      "Players must be available for all scheduled matches"
-    ],
-    description: "A tournament designed for up-and-coming Valorant teams. Build your reputation and climb the ranks of competitive play in this exciting event for amateur teams."
-  },
-  "4": {
-    id: "4",
-    name: "Apex Legends Cup",
-    game: "Apex Legends",
-    date: "June 5, 2025",
-    tier: "Professional",
-    participants: "12/20 teams",
-    prize: "$7,500",
-    registrationFee: "$40",
-    rules: [
-      "Teams must consist of 3 active players",
-      "All participants must be at least 16 years old",
-      "Point-based scoring system across multiple rounds",
-      "No cheating or exploits allowed",
-      "Players must be available for all scheduled matches"
-    ],
-    description: "The Apex Legends Cup features the most skilled squads competing for glory and prizes. Show off your movement, aim, and teamwork in this high-octane battle royale tournament."
-  },
-  "5": {
-    id: "5",
-    name: "Call of Duty Championship",
-    game: "Call of Duty Mobile",
-    date: "Ends May 3, 2025",
-    tier: "Professional",
-    participants: "16/16 teams",
-    prize: "$12,000",
-    registrationFee: "$60",
-    rules: [
-      "Teams must consist of 5 active players",
-      "All participants must be at least 18 years old",
-      "Double elimination format",
-      "No cheating or exploits allowed",
-      "Players must be available for all scheduled matches"
-    ],
-    description: "The ultimate Call of Duty Mobile championship featuring the best teams in the world. Compete in various game modes and prove your squad is the best of the best."
-  }
-};
+interface Tournament {
+  id: string;
+  name: string;
+  game: string;
+  date: string;
+  tier?: string;
+  participants: string;
+  image?: string;
+  prizePool?: string;
+  entryFee?: string;
+  status?: string;
+  description?: string;
+  rules?: string | string[];
+}
 
 const TournamentDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Get tournament data - in a real app this would be fetched from an API
-  const tournament = id ? tournamentData[id] : null;
+  useEffect(() => {
+    loadTournamentData();
+  }, [id]);
+  
+  const loadTournamentData = () => {
+    setIsLoading(true);
+    
+    try {
+      // Get tournaments from localStorage
+      const storedTournaments = localStorage.getItem("tournaments");
+      
+      if (storedTournaments && id) {
+        const allTournaments: Tournament[] = JSON.parse(storedTournaments);
+        const foundTournament = allTournaments.find(t => t.id === id);
+        
+        if (foundTournament) {
+          // Process rules if they are stored as a string but should be an array
+          if (typeof foundTournament.rules === 'string') {
+            foundTournament.rules = foundTournament.rules.split('. ').filter(rule => rule.trim().length > 0);
+          } else if (!foundTournament.rules) {
+            // Default rules if none available
+            foundTournament.rules = [
+              "Teams must consist of 4 active players",
+              "All participants must be at least 16 years old",
+              "No cheating or exploits allowed",
+              "Players must be available for all scheduled matches"
+            ];
+          }
+          
+          setTournament(foundTournament);
+        } else {
+          toast({
+            title: "Tournament not found",
+            description: "The tournament you're looking for does not exist",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Error loading tournament",
+          description: "The tournament data could not be loaded",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error loading tournament details:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem loading the tournament details",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleJoinTournament = () => {
+    setIsPaymentDialogOpen(true);
+  };
+  
+  const handlePayment = () => {
+    setIsPaymentDialogOpen(false);
+    
+    // Update registrations in localStorage
+    if (tournament) {
+      try {
+        // Get current tournaments
+        const storedTournaments = localStorage.getItem("tournaments");
+        if (storedTournaments) {
+          const allTournaments: Tournament[] = JSON.parse(storedTournaments);
+          
+          // Find the tournament and update participants count
+          const updatedTournaments = allTournaments.map(t => {
+            if (t.id === tournament.id) {
+              // Parse current participants (format: "45/64 teams")
+              const participantsMatch = t.participants.match(/(\d+)\/(\d+)/);
+              if (participantsMatch && participantsMatch.length >= 3) {
+                const current = parseInt(participantsMatch[1]);
+                const max = parseInt(participantsMatch[2]);
+                // Increment participants count
+                const newCount = current < max ? current + 1 : current;
+                return {
+                  ...t,
+                  participants: `${newCount}/${max} teams`,
+                  // Mark as full if max reached
+                  isFull: newCount >= max
+                };
+              }
+            }
+            return t;
+          });
+          
+          // Save updated tournaments
+          localStorage.setItem("tournaments", JSON.stringify(updatedTournaments));
+          
+          // Create a payment record
+          const storedPayments = localStorage.getItem("payments") || "[]";
+          const payments = JSON.parse(storedPayments);
+          const newPayment = {
+            id: `p${Date.now()}`,
+            team: localStorage.getItem("userName") || "Your Team",
+            tournament: tournament.name,
+            amount: tournament.entryFee || "$50",
+            date: new Date().toISOString().split('T')[0]
+          };
+          
+          payments.unshift(newPayment); // Add to beginning of array
+          localStorage.setItem("payments", JSON.stringify(payments));
+        }
+        
+        toast({
+          title: "Payment Successful!",
+          description: `You have successfully joined ${tournament.name}`,
+          variant: "default",
+        });
+        
+        // Reload tournament data to reflect changes
+        loadTournamentData();
+        
+      } catch (error) {
+        console.error("Error updating registrations:", error);
+      }
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-grindzone-dark">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center h-64">
+            <p className="text-muted-foreground">Loading tournament details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   if (!tournament) {
     return (
@@ -131,17 +187,17 @@ const TournamentDetailsPage: React.FC = () => {
     );
   }
   
-  const handleJoinTournament = () => {
-    setIsPaymentDialogOpen(true);
-  };
-  
-  const handlePayment = () => {
-    setIsPaymentDialogOpen(false);
-    toast({
-      title: "Payment Successful!",
-      description: `You have successfully joined ${tournament.name}`,
-      variant: "default",
-    });
+  // Check if tournament is full based on participants string
+  const isTournamentFull = () => {
+    if (!tournament.participants) return false;
+    
+    const match = tournament.participants.match(/(\d+)\/(\d+)/);
+    if (match && match.length >= 3) {
+      const current = parseInt(match[1]);
+      const max = parseInt(match[2]);
+      return current >= max;
+    }
+    return false;
   };
   
   return (
@@ -189,14 +245,14 @@ const TournamentDetailsPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-xs bg-grindzone-darker px-3 py-1 rounded-full border border-border">
-                      {tournament.tier}
+                      {tournament.tier || "Standard"}
                     </span>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="mb-4 text-muted-foreground">
-                  {tournament.description}
+                  {tournament.description || `Join this exciting ${tournament.game} tournament and compete against the best teams.`}
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -210,11 +266,11 @@ const TournamentDetailsPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <TrophyIcon size={16} className="text-purple-500" />
-                    <span>Prize Pool: {tournament.prize}</span>
+                    <span>Prize Pool: {tournament.prizePool || "TBD"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CreditCardIcon size={16} className="text-purple-500" />
-                    <span>Entry Fee: {tournament.registrationFee}</span>
+                    <span>Entry Fee: {tournament.entryFee || "Free"}</span>
                   </div>
                 </div>
               </CardContent>
@@ -229,13 +285,17 @@ const TournamentDetailsPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-5 space-y-2">
-                  {tournament.rules.map((rule, index) => (
-                    <li key={index} className="text-muted-foreground">{rule}</li>
-                  ))}
+                  {Array.isArray(tournament.rules) ? (
+                    tournament.rules.map((rule, index) => (
+                      <li key={index} className="text-muted-foreground">{rule}</li>
+                    ))
+                  ) : (
+                    <li className="text-muted-foreground">Standard tournament rules apply</li>
+                  )}
                 </ul>
               </CardContent>
               <CardFooter>
-                {tournament.participants.includes("full") ? (
+                {isTournamentFull() ? (
                   <Button disabled className="w-full bg-gray-600 hover:bg-gray-600 cursor-not-allowed">
                     Tournament Full
                   </Button>
@@ -266,7 +326,7 @@ const TournamentDetailsPage: React.FC = () => {
           <div className="space-y-4">
             <div className="p-4 bg-grindzone-darker rounded-md">
               <p className="font-semibold">Tournament: {tournament.name}</p>
-              <p className="text-muted-foreground">Registration Fee: {tournament.registrationFee}</p>
+              <p className="text-muted-foreground">Registration Fee: {tournament.entryFee || "Free"}</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -302,7 +362,7 @@ const TournamentDetailsPage: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
             <Button onClick={handlePayment} className="bg-grindzone-blue hover:bg-grindzone-blue-light">
-              Pay {tournament.registrationFee}
+              Pay {tournament.entryFee || "Free Entry"}
             </Button>
           </DialogFooter>
         </DialogContent>

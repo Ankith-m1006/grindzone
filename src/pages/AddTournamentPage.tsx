@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Calendar } from "lucide-react";
+import { addTournament } from "@/services/tournamentService";
 
 const AddTournamentPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,9 +55,6 @@ const AddTournamentPage: React.FC = () => {
     }
 
     try {
-      // Get existing tournaments or initialize empty array
-      const existingTournaments = JSON.parse(localStorage.getItem("tournaments") || "[]");
-      
       // Create new tournament object
       const newTournament = {
         id: `t${Date.now()}`, // Generate unique ID
@@ -64,7 +62,7 @@ const AddTournamentPage: React.FC = () => {
         game: formData.game,
         date: formData.date,
         tier: formData.tier,
-        participants: `0/${formData.maxTeams} teams`,
+        participants: `0/${formData.maxTeams || '32'} teams`,
         prizePool: formData.prizePool ? `$${formData.prizePool}` : "",
         entryFee: formData.entryFee ? `$${formData.entryFee}` : "",
         status: "Registration",
@@ -72,11 +70,8 @@ const AddTournamentPage: React.FC = () => {
         rules: formData.rules
       };
 
-      // Add new tournament to list
-      existingTournaments.unshift(newTournament);
-      
-      // Save to localStorage
-      localStorage.setItem("tournaments", JSON.stringify(existingTournaments));
+      // Add new tournament using the service
+      addTournament(newTournament);
 
       toast({
         title: "Tournament created",

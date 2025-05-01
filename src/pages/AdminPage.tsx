@@ -7,28 +7,7 @@ import Navbar from "@/components/navigation/Navbar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-
-// Define tournament type for type safety
-interface Tournament {
-  id: string;
-  name: string;
-  game?: string;
-  date: string;
-  tier?: string;
-  participants: string;
-  prizePool?: string;
-  entryFee?: string;
-  status: string;
-}
-
-// Define payment type
-interface Payment {
-  id: string;
-  team: string;
-  tournament: string;
-  amount: string;
-  date: string;
-}
+import { Tournament, Payment, getAllTournaments, getAllPayments, deleteTournament, initializeAppData } from "@/services/tournamentService";
 
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();
@@ -64,53 +43,28 @@ const AdminPage: React.FC = () => {
       setAdminName(userName);
     }
     
-    // Load tournaments from localStorage or use default data if empty
+    // Initialize app data if needed
+    initializeAppData();
+    
+    // Load tournaments from localStorage
     loadData();
   }, [navigate, toast]);
   
-  // Load data from localStorage or set defaults
+  // Load data from localStorage
   const loadData = () => {
     try {
       // Load tournaments
-      const storedTournaments = localStorage.getItem("tournaments");
-      let tournaments: Tournament[] = [];
-      
-      if (storedTournaments) {
-        tournaments = JSON.parse(storedTournaments);
-      } else {
-        // Default tournaments if none exist
-        tournaments = [
-          { id: "t1", name: "FreeFire Champions Cup", game: "Free Fire", date: "2025-05-10", tier: "Professional", participants: "32/32 teams", prizePool: "$5,000", status: "Ongoing" },
-          { id: "t2", name: "PUBG Mobile Invitational", game: "PUBG", date: "2025-05-20", tier: "Professional", participants: "48/48 teams", prizePool: "$8,000", status: "Upcoming" },
-          { id: "t3", name: "Valorant Pro League", game: "Valorant", date: "2025-04-15", tier: "Semi-Pro", participants: "16/16 teams", prizePool: "$3,000", status: "Completed" },
-          { id: "t4", name: "COD Mobile Showdown", game: "COD", date: "2025-05-05", tier: "Amateur", participants: "24/24 teams", prizePool: "$4,500", status: "Registration" },
-        ];
-        localStorage.setItem("tournaments", JSON.stringify(tournaments));
-      }
-      
-      // Load payments or set defaults
-      const storedPayments = localStorage.getItem("payments");
-      let payments: Payment[] = [];
-      
-      if (storedPayments) {
-        payments = JSON.parse(storedPayments);
-      } else {
-        // Default payments if none exist
-        payments = [
-          { id: "p1", team: "Phoenix Esports", tournament: "FreeFire Cup", amount: "$250", date: "2025-04-25" },
-          { id: "p2", team: "Viper Gaming", tournament: "PUBG Mobile", amount: "$300", date: "2025-04-24" },
-          { id: "p3", team: "DarkKnights", tournament: "Valorant Pro", amount: "$200", date: "2025-04-23" },
-          { id: "p4", team: "Elite Squad", tournament: "COD Mobile", amount: "$250", date: "2025-04-22" },
-        ];
-        localStorage.setItem("payments", JSON.stringify(payments));
-      }
-      
-      // Update state with loaded data
+      const tournaments = getAllTournaments();
       setRecentTournaments(tournaments);
+      
+      // Load payments
+      const payments = getAllPayments();
       setRecentPayments(payments);
       
       // Calculate stats
-      const ongoingTournaments = tournaments.filter(t => t.status === "Ongoing" || t.status === "Registration" || t.status === "Upcoming").length;
+      const ongoingTournaments = tournaments.filter(t => 
+        t.status === "Ongoing" || t.status === "Registration" || t.status === "Upcoming"
+      ).length;
       
       // Calculate total teams from participants string (format: "32/48 teams")
       const teamsCount = tournaments.reduce((total, tournament) => {
@@ -145,39 +99,47 @@ const AdminPage: React.FC = () => {
   };
 
   const handleEditTournament = (id: string) => {
+    // For now, we'll just show a toast - we'll implement editing functionality later
     toast({
       title: "Edit tournament",
       description: `Editing tournament ${id}`,
     });
+    
+    // In a real application, we would navigate to an edit page
+    // navigate(`/edit-tournament/${id}`);
   };
 
   const handleDeleteTournament = (id: string) => {
     try {
-      // Get current tournaments
-      const currentTournaments = JSON.parse(localStorage.getItem("tournaments") || "[]");
+      // Delete tournament
+      const success = deleteTournament(id);
       
-      // Filter out the tournament to delete
-      const updatedTournaments = currentTournaments.filter((tournament: Tournament) => tournament.id !== id);
-      
-      // Save updated list to localStorage
-      localStorage.setItem("tournaments", JSON.stringify(updatedTournaments));
-      
-      // Update state
-      setRecentTournaments(updatedTournaments);
-      
-      // Update statistics
-      const ongoingTournaments = updatedTournaments.filter((t: Tournament) => 
-        t.status === "Ongoing" || t.status === "Registration" || t.status === "Upcoming").length;
-      
-      setStats(prev => ({
-        ...prev,
-        activeTournaments: ongoingTournaments
-      }));
-      
-      toast({
-        title: "Tournament deleted",
-        description: "The tournament has been successfully removed",
-      });
+      if (success) {
+        // Update state by filtering out the deleted tournament
+        const updatedTournaments = recentTournaments.filter(tournament => tournament.id !== id);
+        setRecentTournaments(updatedTournaments);
+        
+        // Update statistics
+        const ongoingTournaments = updatedTournaments.filter(t => 
+          t.status === "Ongoing" || t.status === "Registration" || t.status === "Upcoming"
+        ).length;
+        
+        setStats(prev => ({
+          ...prev,
+          activeTournaments: ongoingTournaments
+        }));
+        
+        toast({
+          title: "Tournament deleted",
+          description: "The tournament has been successfully removed",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete tournament",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error("Error deleting tournament:", error);
       toast({
