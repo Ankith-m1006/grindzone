@@ -13,6 +13,7 @@ import CreateSquadPage from "./pages/CreateSquadPage";
 import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import AdminPage from "./pages/AdminPage";
+import AddTournamentPage from "./pages/AddTournamentPage";
 import NotFound from "./pages/NotFound";
 
 // Create a QueryClient instance
@@ -108,6 +109,14 @@ const App = () => {
               element={
                 <AdminRoute>
                   <AdminPage />
+                </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/add-tournament" 
+              element={
+                <AdminRoute>
+                  <AddTournamentPage />
                 </AdminRoute>
               } 
             />

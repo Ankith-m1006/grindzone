@@ -8,12 +8,44 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
+// Define tournament type for type safety
+interface Tournament {
+  id: string;
+  name: string;
+  game?: string;
+  date: string;
+  tier?: string;
+  participants: string;
+  prizePool?: string;
+  entryFee?: string;
+  status: string;
+}
+
+// Define payment type
+interface Payment {
+  id: string;
+  team: string;
+  tournament: string;
+  amount: string;
+  date: string;
+}
+
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [adminName, setAdminName] = useState("Admin");
   
-  // Check if user is admin
+  // State for statistics and data
+  const [stats, setStats] = useState({
+    activeTournaments: 0,
+    registeredTeams: 0,
+    totalPayments: 0
+  });
+  
+  const [recentTournaments, setRecentTournaments] = useState<Tournament[]>([]);
+  const [recentPayments, setRecentPayments] = useState<Payment[]>([]);
+  
+  // Check if user is admin and load data
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     const userName = localStorage.getItem("userName");
@@ -31,32 +63,85 @@ const AdminPage: React.FC = () => {
     if (userName) {
       setAdminName(userName);
     }
+    
+    // Load tournaments from localStorage or use default data if empty
+    loadData();
   }, [navigate, toast]);
-
-  // Mock data for admin dashboard
-  const stats = {
-    activeTournaments: 12,
-    registeredTeams: 248,
-    totalPayments: 25750,
-    recentTournaments: [
-      { id: "t1", name: "FreeFire Champions Cup", teams: 32, prize: "$5,000", status: "Ongoing" },
-      { id: "t2", name: "PUBG Mobile Invitational", teams: 48, prize: "$8,000", status: "Upcoming" },
-      { id: "t3", name: "Valorant Pro League", teams: 16, prize: "$3,000", status: "Completed" },
-      { id: "t4", name: "COD Mobile Showdown", teams: 24, prize: "$4,500", status: "Registration" },
-    ],
-    recentPayments: [
-      { id: "p1", team: "Phoenix Esports", tournament: "FreeFire Cup", amount: "$250", date: "2025-04-25" },
-      { id: "p2", team: "Viper Gaming", tournament: "PUBG Mobile", amount: "$300", date: "2025-04-24" },
-      { id: "p3", team: "DarkKnights", tournament: "Valorant Pro", amount: "$200", date: "2025-04-23" },
-      { id: "p4", team: "Elite Squad", tournament: "COD Mobile", amount: "$250", date: "2025-04-22" },
-    ]
+  
+  // Load data from localStorage or set defaults
+  const loadData = () => {
+    try {
+      // Load tournaments
+      const storedTournaments = localStorage.getItem("tournaments");
+      let tournaments: Tournament[] = [];
+      
+      if (storedTournaments) {
+        tournaments = JSON.parse(storedTournaments);
+      } else {
+        // Default tournaments if none exist
+        tournaments = [
+          { id: "t1", name: "FreeFire Champions Cup", game: "Free Fire", teams: 32, prize: "$5,000", status: "Ongoing", participants: "32/32 teams" },
+          { id: "t2", name: "PUBG Mobile Invitational", game: "PUBG", teams: 48, prize: "$8,000", status: "Upcoming", participants: "48/48 teams" },
+          { id: "t3", name: "Valorant Pro League", game: "Valorant", teams: 16, prize: "$3,000", status: "Completed", participants: "16/16 teams" },
+          { id: "t4", name: "COD Mobile Showdown", game: "COD", teams: 24, prize: "$4,500", status: "Registration", participants: "24/24 teams" },
+        ];
+        localStorage.setItem("tournaments", JSON.stringify(tournaments));
+      }
+      
+      // Load payments or set defaults
+      const storedPayments = localStorage.getItem("payments");
+      let payments: Payment[] = [];
+      
+      if (storedPayments) {
+        payments = JSON.parse(storedPayments);
+      } else {
+        // Default payments if none exist
+        payments = [
+          { id: "p1", team: "Phoenix Esports", tournament: "FreeFire Cup", amount: "$250", date: "2025-04-25" },
+          { id: "p2", team: "Viper Gaming", tournament: "PUBG Mobile", amount: "$300", date: "2025-04-24" },
+          { id: "p3", team: "DarkKnights", tournament: "Valorant Pro", amount: "$200", date: "2025-04-23" },
+          { id: "p4", team: "Elite Squad", tournament: "COD Mobile", amount: "$250", date: "2025-04-22" },
+        ];
+        localStorage.setItem("payments", JSON.stringify(payments));
+      }
+      
+      // Update state with loaded data
+      setRecentTournaments(tournaments);
+      setRecentPayments(payments);
+      
+      // Calculate stats
+      const ongoingTournaments = tournaments.filter(t => t.status === "Ongoing" || t.status === "Registration" || t.status === "Upcoming").length;
+      
+      // Calculate total teams from participants string (format: "32/48 teams")
+      const teamsCount = tournaments.reduce((total, tournament) => {
+        const participantsMatch = tournament.participants.match(/(\d+)\/\d+/);
+        return total + (participantsMatch ? parseInt(participantsMatch[1]) : 0);
+      }, 0);
+      
+      // Calculate total payments in USD
+      const totalPayments = payments.reduce((total, payment) => {
+        const amountMatch = payment.amount.match(/\$(\d+)/);
+        return total + (amountMatch ? parseInt(amountMatch[1]) : 0);
+      }, 0);
+      
+      setStats({
+        activeTournaments: ongoingTournaments,
+        registeredTeams: teamsCount || 248, // Fallback to 248 if calculation fails
+        totalPayments: totalPayments || 25750 // Fallback to 25750 if calculation fails
+      });
+      
+    } catch (error) {
+      console.error("Error loading data:", error);
+      toast({
+        title: "Error loading data",
+        description: "There was a problem loading the dashboard data",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAddTournament = () => {
-    toast({
-      title: "Feature coming soon",
-      description: "Tournament creation will be available in the next update",
-    });
+    navigate("/add-tournament");
   };
 
   const handleEditTournament = (id: string) => {
@@ -67,10 +152,40 @@ const AdminPage: React.FC = () => {
   };
 
   const handleDeleteTournament = (id: string) => {
-    toast({
-      title: "Delete tournament",
-      description: `Tournament ${id} has been deleted`,
-    });
+    try {
+      // Get current tournaments
+      const currentTournaments = JSON.parse(localStorage.getItem("tournaments") || "[]");
+      
+      // Filter out the tournament to delete
+      const updatedTournaments = currentTournaments.filter((tournament: Tournament) => tournament.id !== id);
+      
+      // Save updated list to localStorage
+      localStorage.setItem("tournaments", JSON.stringify(updatedTournaments));
+      
+      // Update state
+      setRecentTournaments(updatedTournaments);
+      
+      // Update statistics
+      const ongoingTournaments = updatedTournaments.filter((t: Tournament) => 
+        t.status === "Ongoing" || t.status === "Registration" || t.status === "Upcoming").length;
+      
+      setStats(prev => ({
+        ...prev,
+        activeTournaments: ongoingTournaments
+      }));
+      
+      toast({
+        title: "Tournament deleted",
+        description: "The tournament has been successfully removed",
+      });
+    } catch (error) {
+      console.error("Error deleting tournament:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete tournament",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -157,11 +272,11 @@ const AdminPage: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {stats.recentTournaments.map((tournament) => (
+                {recentTournaments.map((tournament) => (
                   <TableRow key={tournament.id} className="border-zinc-800">
                     <TableCell className="font-medium">{tournament.name}</TableCell>
-                    <TableCell>{tournament.teams}</TableCell>
-                    <TableCell>{tournament.prize}</TableCell>
+                    <TableCell>{tournament.participants}</TableCell>
+                    <TableCell>{tournament.prizePool}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs ${
                         tournament.status === "Ongoing" ? "bg-green-500/20 text-green-400" :
@@ -194,6 +309,13 @@ const AdminPage: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ))}
+                {recentTournaments.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
+                      No tournaments found. Click "Add Tournament" to create one.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -215,7 +337,7 @@ const AdminPage: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {stats.recentPayments.map((payment) => (
+                {recentPayments.map((payment) => (
                   <TableRow key={payment.id} className="border-zinc-800">
                     <TableCell className="font-medium">{payment.team}</TableCell>
                     <TableCell>{payment.tournament}</TableCell>
@@ -223,6 +345,13 @@ const AdminPage: React.FC = () => {
                     <TableCell>{payment.date}</TableCell>
                   </TableRow>
                 ))}
+                {recentPayments.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8 text-zinc-500">
+                      No payment records found.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
